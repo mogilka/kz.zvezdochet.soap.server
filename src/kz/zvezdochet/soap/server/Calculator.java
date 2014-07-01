@@ -35,22 +35,11 @@ public class Calculator {
 			double dzone, double dlat, double dlon, String hstype) {
     	Configuration configuration = new Configuration();
     	try {
-	  		long iflag = SweConst.SEFLG_SWIEPH | SweConst.SEFLG_SPEED;
+	  		long iflag = SweConst.SEFLG_SIDEREAL | SweConst.SEFLG_SPEED;
 	  	  	SwissEph sweph = new SwissEph();
 	  	  	sweph.swe_set_ephe_path("WEB-INF/lib/ephe");
+	  	  	sweph.swe_set_sid_mode(SweConst.SE_SIDM_DJWHAL_KHUL, 0, 0);
 
-	  		/**
-	  		 * Примерное количество лет, за которое происходит
-	  		 * сдвиг точки равноденствия на один градус
-	  		 */
-	  		final double ONE_DEGREE_DISPLACEMENT = 70.0; //TODO уточнить и вынести в конфиг
-	  		/**
-	  		 * Переменная целого типа, определяющая,
-	  		 * на сколько градусов сдвинулась точка равноденствия
-	  		 * за количество лет до указанного года 
-	  		 */
-	  		int correction = CalcUtil.trunc(iyear / ONE_DEGREE_DISPLACEMENT);
-	  		
 	  		//обрабатываем время
 	  		double timing = (double)ihour;
 	  		if (dzone < 0)
@@ -64,10 +53,10 @@ public class Calculator {
 	  		if (timing >= 24)
 	  			timing -= 24;
 	  		ihour = (int)Math.round(timing / 1);
-	
+
 	  		//обрабатываем координаты места
 	  		if (0 == dlat && 0 == dlon)
-	  			dlat = 53.45; //Гринвич
+	  			dlat = 53.45; //по умолчанию Гринвич
 	  		int ilondeg, ilonmin, ilonsec, ilatdeg, ilatmin, ilatsec;
 	  		ilondeg = CalcUtil.trunc(Math.abs(dlon));
 	  		ilonmin = CalcUtil.trunc(Math.abs(dlon) - ilondeg) * 100;
@@ -97,7 +86,7 @@ public class Calculator {
 	  		Planet[] planets = getPlanets();
 	  		for (int i = 0; i < pindexes.length; i++) {
 	  		    rflag = sweph.swe_calc(tjdet, pindexes[i], (int)iflag, xx, sb);
-	  		    pcoords[i] = correctValue(xx[0], correction);
+	  		    pcoords[i] = xx[0];
 	  		    int n = constToPlanet(i);
 	  		    if (n >= 0)
 	  		    	planets[n].coord = pcoords[i];
@@ -129,9 +118,9 @@ public class Calculator {
 	  		double[] hcusps = new double[13];
 	  		//по умолчанию используем систему Плацидуса
 	  		//if (null == hstype) hstype = 'P';
-	  		sweph.swe_houses_armc(armc, glat, eps_true, hstype.charAt(0), hcusps, ascmc);
+	  		sweph.swe_houses(tjdut, SweConst.SEFLG_SIDEREAL, glat, glon, hstype.charAt(0), hcusps, ascmc);
 	  		for (int i = 0; i < 13; i++)
-	  			hcusps[i] = correctValue(hcusps[i], correction);
+	  			hcusps[i] = hcusps[i];
 	  		House[] houses = calcHouseParts(hcusps);
 	  		configuration.setHouses(houses);
     	} catch(Exception e) {
@@ -154,19 +143,6 @@ public class Calculator {
   		list[13] = SweConst.SE_WHITE_MOON;
   		list[14] = SweConst.SE_PROSERPINA;
   		return list;
-  	}
-
-  	/**
-  	 * Коррекция вычисленных координат с учетом смещения эклиптики
-  	 * @param n координата небесной точки
-  	 * @param correction градус, который нужно вычесть из координаты
-  	 * @return измененное значение координаты
-  	 */
-  	private double correctValue(double n, int correction) {
-  		if (n - correction > 0)
-  			return CalcUtil.decToDeg(n - correction);
-  		else
-  			return CalcUtil.decToDeg(n + 360 - correction);
   	}
 
   	/**
