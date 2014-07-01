@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" targetNamespace="configuration" xmlns:ns1="http://server.soap.zvezdochet.kz/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://server.soap.zvezdochet.kz/" schemaLocation="CalculatorService_schema2.xsd"/>
+
+  <xs:element name="configuration" type="ns1:configuration"/>
+
+</xs:schema>
+
