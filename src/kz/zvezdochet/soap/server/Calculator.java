@@ -35,8 +35,20 @@ public class Calculator {
 			double dzone, double dlat, double dlon, String hstype) {
     	Configuration configuration = new Configuration();
     	try {
-	  		long iflag = SweConst.SEFLG_SIDEREAL | SweConst.SEFLG_SPEED;
+	  		//обрабатываем координаты места
+	  		if (0 == dlat && 0 == dlon)
+	  			dlat = 53.45; //по умолчанию Гринвич
+	  		int ilondeg, ilonmin, ilonsec, ilatdeg, ilatmin, ilatsec;
+	  		ilondeg = CalcUtil.trunc(Math.abs(dlon));
+	  		ilonmin = CalcUtil.trunc(Math.abs(dlon) - ilondeg) * 100;
+	  		ilonsec = 0;
+	  		ilatdeg = CalcUtil.trunc(Math.abs(dlat));
+	  		ilatmin = CalcUtil.trunc(Math.abs(dlat) - ilatdeg) * 100;
+	  		ilatsec = 0;
+
 	  	  	SwissEph sweph = new SwissEph();
+			sweph.swe_set_topo(dlon, dlat, 0);
+	  		long iflag = SweConst.SEFLG_SIDEREAL | SweConst.SEFLG_SPEED | SweConst.SEFLG_TRUEPOS | SweConst.SEFLG_TOPOCTR;
 	  	  	sweph.swe_set_ephe_path("WEB-INF/lib/ephe");
 	  	  	sweph.swe_set_sid_mode(SweConst.SE_SIDM_DJWHAL_KHUL, 0, 0);
 
@@ -54,17 +66,7 @@ public class Calculator {
 	  			timing -= 24;
 	  		ihour = (int)Math.round(timing / 1);
 
-	  		//обрабатываем координаты места
-	  		if (0 == dlat && 0 == dlon)
-	  			dlat = 53.45; //по умолчанию Гринвич
-	  		int ilondeg, ilonmin, ilonsec, ilatdeg, ilatmin, ilatsec;
-	  		ilondeg = CalcUtil.trunc(Math.abs(dlon));
-	  		ilonmin = CalcUtil.trunc(Math.abs(dlon) - ilondeg) * 100;
-	  		ilonsec = 0;
-	  		ilatdeg = CalcUtil.trunc(Math.abs(dlat));
-	  		ilatmin = CalcUtil.trunc(Math.abs(dlat) - ilatdeg) * 100;
-	  		ilatsec = 0;
-	  		
+	  		//обрабатываем дату
 	  		double tjd, tjdet, tjdut, tsid, armc, dhour, deltat;
 	  		@SuppressWarnings("unused")
 			double eps_true, nut_long, glon, glat;
