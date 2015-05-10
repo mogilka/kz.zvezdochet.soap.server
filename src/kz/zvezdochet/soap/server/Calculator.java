@@ -125,6 +125,7 @@ public class Calculator {
 	  			hcusps[i] = hcusps[i];
 	  		House[] houses = calcHouseParts(hcusps);
 	  		configuration.setHouses(houses);
+	  		sweph.swe_close();
     	} catch(Exception e) {
     		e.printStackTrace();
     	}
