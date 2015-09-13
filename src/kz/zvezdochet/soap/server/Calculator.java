@@ -1,5 +1,7 @@
 package kz.zvezdochet.soap.server;
 
+import java.util.Arrays;
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
@@ -10,7 +12,7 @@ import swisseph.SwissLib;
 
 /**
  * Класс, предоставляющий методы, доступные через веб-сервис
- * @author nataly
+ * @author Nataly Didenko
  *
  */
 @WebService
@@ -37,34 +39,57 @@ public class Calculator {
     	try {
 	  		//обрабатываем координаты места
 	  		if (0 == dlat && 0 == dlon)
-	  			dlat = 53.45; //по умолчанию Гринвич
+	  			dlat = 51.48; //по умолчанию Гринвич
 	  		int ilondeg, ilonmin, ilonsec, ilatdeg, ilatmin, ilatsec;
-	  		ilondeg = CalcUtil.trunc(Math.abs(dlon));
-	  		ilonmin = CalcUtil.trunc(Math.abs(dlon) - ilondeg) * 100;
+	  		ilondeg = (int)dlon;
+	  		ilonmin = (int)Math.round((Math.abs(dlon) - Math.abs(ilondeg)) * 100);
 	  		ilonsec = 0;
-	  		ilatdeg = CalcUtil.trunc(Math.abs(dlat));
-	  		ilatmin = CalcUtil.trunc(Math.abs(dlat) - ilatdeg) * 100;
+	  		ilatdeg = (int)dlat;
+	  		ilatmin = (int)Math.round((Math.abs(dlat) - Math.abs(ilatdeg)) * 100);
 	  		ilatsec = 0;
 
 	  	  	SwissEph sweph = new SwissEph();
 			sweph.swe_set_topo(dlon, dlat, 0);
-	  		long iflag = SweConst.SEFLG_SIDEREAL | SweConst.SEFLG_SPEED | SweConst.SEFLG_TRUEPOS | SweConst.SEFLG_TOPOCTR;
+	  		long iflag = SweConst.SEFLG_SWIEPH | SweConst.SEFLG_SIDEREAL | SweConst.SEFLG_SPEED | SweConst.SEFLG_TRUEPOS | SweConst.SEFLG_TOPOCTR;
 	  	  	sweph.swe_set_ephe_path("WEB-INF/lib/ephe");
 	  	  	sweph.swe_set_sid_mode(SweConst.SE_SIDM_DJWHAL_KHUL, 0, 0);
 
 	  		//обрабатываем время
-	  		double timing = (double)ihour;
+	  		double timing = (double)ihour; //час по местному времени
 	  		if (dzone < 0)
 	  			timing -= dzone;
 	  		else {
 	  			if (timing >= dzone)
 	  				timing -= dzone;
-	  			else
+	  			else {
+	  				/*
+	  				 * Если час меньше зоны, значит по Гринвичу будет предыдущий день,
+	  				 * поэтому нужно уменьшить указанную дату на 1 день
+	  				 */
 	  				timing = timing + 24 - dzone;
+	  				if (iday > 1)
+	  					--iday;
+	  				else {
+	  					if (1 == imonth) {
+	  						--iyear;
+	  						imonth = 12;
+	  						iday = 31;
+	  					} else if (3 == imonth) {
+	  						imonth = 2;
+	  						iday = DateUtil.isLeapYear(iyear) ? 29 : 28;
+	  					} else if (Arrays.asList(new Integer[] {2,4,6,8,9,11}).contains(imonth)) {
+	  						--imonth;
+	  						iday = 31;
+	  					} else if (Arrays.asList(new Integer[] {5,7,10,12}).contains(imonth)) {
+	  						--imonth;
+	  						iday = 30;
+	  					}
+	  				}
+	  			}
 	  		}
 	  		if (timing >= 24)
 	  			timing -= 24;
-	  		ihour = (int)Math.round(timing / 1);
+	  		ihour = (int)timing; //гринвичский час
 
 	  		//обрабатываем дату
 	  		double tjd, tjdet, tjdut, tsid, armc, dhour, deltat;
@@ -108,9 +133,11 @@ public class Calculator {
 	  		nut_long = xx[2];
 	  		//{ geographic position }
 	  		glon = ilondeg + ilonmin / 60.0 + ilonsec / 3600.0;
-	  		if (dlon < 0) glon = -glon;
+	  		if (dlon < 0)
+	  			glon = -glon;
 	  		glat = ilatdeg + ilatmin / 60.0 + ilatsec / 3600.0;
-	  		if (dlat < 0) glat = -glat;
+	  		if (dlat < 0)
+	  			glat = -glat;
 	  		//{ sidereal time }
 	  		tsid = new SwissLib().swe_sidtime(tjdut);
 	  		tsid = tsid + glon / 15;

@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Класс, представляющий Точку Небесной сферы
- * @author Nataly
+ * @author Nataly Didenko
  *
  */
 public abstract class SkyPoint {

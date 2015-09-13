@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Класс, представляющий Планету
- * @author Nataly
+ * @author Nataly Didenko
  * 
  * @see SkyPoint Точка небесной сферы
  */

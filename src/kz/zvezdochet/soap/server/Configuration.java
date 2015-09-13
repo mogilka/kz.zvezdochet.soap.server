@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Расчётная конфигурация
- * @author nataly
+ * @author Nataly Didenko
  *
  */
 @XmlRootElement(namespace="configuration")

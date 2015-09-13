@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Класс, представляющий Астрологический дом
- * @author nataly
+ * @author Nataly Didenko
  *
  */
 @XmlRootElement(namespace="house")
