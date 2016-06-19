@@ -169,10 +169,10 @@ public class Calculator {
 	  		eps_true = xx[0];
 	  		nut_long = xx[2];
 	  		//{ geographic position }
-	  		glon = ilondeg + ilonmin / 60.0 + ilonsec / 3600.0;
+	  		glon = Math.abs(ilondeg) + ilonmin/60.0 + ilonsec/3600.0;
 	  		if (dlon < 0)
 	  			glon = -glon;
-	  		glat = ilatdeg + ilatmin / 60.0 + ilatsec / 3600.0;
+	  		glat = Math.abs(ilatdeg) + ilatmin/60.0 + ilatsec/3600.0;
 	  		if (dlat < 0)
 	  			glat = -glat;
 	  		//{ sidereal time }
