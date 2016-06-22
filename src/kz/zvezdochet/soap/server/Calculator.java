@@ -161,9 +161,9 @@ public class Calculator {
 	  		}
 	  		//рассчитываем координату Кету по значению Раху
 	  		if (Math.abs(pcoords[10]) > 180)
-	  			planets[3].coord = pcoords[10] - 180;
+	  			planets[3].coord = (pcoords[10] > 0) ? pcoords[10] - 180 : pcoords[10] + 180;
 	  		else
-	  			planets[3].coord = pcoords[10] + 180;
+	  			planets[3].coord = (pcoords[10] > 0) ? pcoords[10] + 180 : pcoords[10] - 180;
 	  		configuration.setPlanets(planets);
 	
 	  		//расчёт куспидов домов
