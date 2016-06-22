@@ -129,7 +129,8 @@ public class Calculator {
 	  		ihour = (int)timing; //гринвичский час
 
 	  		//обрабатываем дату
-	  		double tjd, tjdet, tjdut, tsid, armc, dhour, deltat;
+	  		@SuppressWarnings("unused")
+			double tjd, tjdet, tjdut, tsid, armc, dhour, deltat;
 	  		@SuppressWarnings("unused")
 			double eps_true, nut_long, glon, glat;
 	  		dhour = ihour + imin / 60.0 + isec / 3600.0;
@@ -151,6 +152,8 @@ public class Calculator {
 	  		for (int i = 0; i < pindexes.length; i++) {
 	  		    rflag = sweph.swe_calc(tjdet, pindexes[i], (int)iflag, xx, sb);
 	  		    pcoords[i] = xx[0];
+	  		    if (xx[3] < 0)
+	  		    	pcoords[i] *= -1;
 	  		    int n = constToPlanet(i);
 	  		    if (n >= 0)
 	  		    	planets[n].coord = pcoords[i];
